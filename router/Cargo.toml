@@ -7,3 +7,10 @@ edition.workspace = true
 axum = "0.8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+ppdrive = { path = "../../ppdrive/core", features = ["server"] }
+jsonwebtoken = "9"
+hex = "0.4"
+time = "0.3"
+tower = { version = "0.5", features = ["limit"] }
+tower_governor = { version = "0.8", features = ["axum"] }
+tracing = "0.1"
