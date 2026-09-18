@@ -3,6 +3,10 @@ name = "ppdrive_dashboard_router"
 version.workspace = true
 edition.workspace = true
 
+[lib]
+name = "ppdrive_dashboard_router"
+crate-type = ["cdylib", "rlib"]
+
 [[bin]]
 name = "test_server"
 path = "src/bin/test_server.rs"
@@ -23,3 +27,4 @@ chrono = "0.4"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "signal"] }
 anyhow = "1"
+

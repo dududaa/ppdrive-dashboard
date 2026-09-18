@@ -5,3 +5,10 @@ members = ["shared", "web", "router"]
 [workspace.package]
 version = "0.1.4"
 edition = "2024"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = "symbols"
+panic = "abort"
