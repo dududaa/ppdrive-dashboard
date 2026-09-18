@@ -1,6 +1,8 @@
+pub mod overview;
+
 use axum::extract::State;
-use axum::http::{HeaderName, HeaderValue, StatusCode};
-use axum::http::header::SET_COOKIE;
+use axum::http::header::{HeaderName, HeaderValue, SET_COOKIE};
+use axum::http::StatusCode;
 use axum::Json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use ppdrive::db::user;
@@ -32,7 +34,7 @@ pub async fn login_handler(
 
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
+        .map_err(|_| crate::err_response(StatusCode::UNAUTHORIZED, "unable to construct local time"))?
         .as_secs() as usize;
 
     let claims = Claims {

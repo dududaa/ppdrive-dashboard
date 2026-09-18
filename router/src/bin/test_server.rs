@@ -13,7 +13,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("root_dir = {:?}", ppdrive::root_dir()?);
 
     let state = AppState::new().await?;
-    let app = router().with_state(state);
+    let app = router(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8081").await?;
     tracing::info!("dashboard router listening on 0.0.0.0:8081");
