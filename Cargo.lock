@@ -4647,6 +4647,7 @@ dependencies = [
  "toml 1.1.6+spec-1.1.0",
  "tracing",
  "validator",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
