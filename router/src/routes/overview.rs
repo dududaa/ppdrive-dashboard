@@ -2,7 +2,7 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::Json;
 use ppdrive::state::AppState;
-use ppdrive::tools::system_info::{SystemInfo, NetworkThroughput};
+use ppdrive::tools::system_info::{SystemInfo, NetworkThroughput, mounted_devices};
 use crate::data::{Claims, OverviewResponse};
 
 pub async fn overview_handler(
@@ -17,11 +17,13 @@ pub async fn overview_handler(
 
     let since = (std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
+        .map_err(|e| crate::err_response(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()))?
         .as_secs() - 7 * 86400) as i64;
+
     let since_rfc3339 = chrono::DateTime::from_timestamp(since, 0)
         .map(|dt| dt.to_rfc3339())
         .unwrap_or_default();
+
     let added_this_week = ppdrive::db::stats::count_users_after(db, &since_rfc3339).await
         .map_err(|e| crate::err_response(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()))?;
 
@@ -43,6 +45,18 @@ pub async fn overview_handler(
     let throughput: NetworkThroughput = tokio::task::spawn_blocking(NetworkThroughput::sample)
         .await
         .map_err(|e| crate::err_response(StatusCode::INTERNAL_SERVER_ERROR, &e.to_string()))?;
+
+    let mounted = mounted_devices()
+        .into_iter()
+        .map(|d| crate::data::MountedDeviceInfo {
+            mount_path: d.mount_path,
+            device: d.device,
+            fs_type: d.fs_type,
+            total: d.total,
+            used: d.used,
+            free: d.free,
+        })
+        .collect();
 
     let response = OverviewResponse {
         logged_user: claims.sub,
@@ -79,6 +93,7 @@ pub async fn overview_handler(
             req_per_second: 0,
             latency_p99: "N/A".to_string(),
         },
+        mounted,
     };
 
     Ok(Json(response))

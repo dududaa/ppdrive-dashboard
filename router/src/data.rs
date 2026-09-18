@@ -31,6 +31,18 @@ pub struct OverviewResponse {
     pub counter: Counter,
     pub host: HostInfo,
     pub throughput: Throughput,
+    pub mounted: Vec<MountedDeviceInfo>,
+}
+
+#[derive(Serialize)]
+pub struct MountedDeviceInfo {
+    pub mount_path: String,
+    pub device: String,
+    #[serde(rename = "type")]
+    pub fs_type: String,
+    pub total: String,
+    pub used: String,
+    pub free: String,
 }
 
 #[derive(Serialize)]
