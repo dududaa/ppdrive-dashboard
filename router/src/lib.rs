@@ -85,9 +85,12 @@ pub fn router(state: AppState) -> Router {
             auth_middleware,
         ));
 
-    Router::new()
+    let api = Router::new()
         .route("/welcome", get(welcome_handler))
         .merge(login)
-        .merge(protected)
+        .merge(protected);
+
+    Router::new()
+        .nest("/dashboard", api)
         .with_state(state)
 }

@@ -4890,7 +4890,9 @@ name = "ppdrive-web"
 version = "0.1.0"
 dependencies = [
  "dioxus",
+ "gloo-net",
  "ppdrive_dashboard_shared",
+ "serde_json",
 ]
 
 [[package]]

@@ -6,7 +6,7 @@ pub struct Welcome {
     pub host: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,

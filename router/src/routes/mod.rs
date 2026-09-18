@@ -52,9 +52,11 @@ pub async fn login_handler(
     )
     .map_err(|_| crate::err_response(StatusCode::INTERNAL_SERVER_ERROR, "token creation failed"))?;
 
-    let cookie = format!(
-        "session={token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600"
-    );
+    let cookie = if cfg!(debug_assertions) {
+        format!("session={token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=3600")
+    } else {
+        format!("session={token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600")
+    };
     let cookie_val = HeaderValue::from_str(&cookie)
         .map_err(|_| crate::err_response(StatusCode::INTERNAL_SERVER_ERROR, "cookie creation failed"))?;
 
