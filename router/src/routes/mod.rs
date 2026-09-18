@@ -7,7 +7,8 @@ use axum::Json;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use ppdrive::db::user;
 use ppdrive::state::AppState;
-use crate::data::{Claims, LoginRequest, LoginResponse, Welcome};
+use ppdrive_dashboard_shared::{LoginRequest, LoginResponse, Welcome};
+use crate::Claims;
 use crate::ErrorResponse;
 
 pub async fn welcome_handler() -> Json<Welcome> {

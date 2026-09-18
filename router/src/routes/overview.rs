@@ -3,7 +3,8 @@ use axum::http::StatusCode;
 use axum::Json;
 use ppdrive::state::AppState;
 use ppdrive::tools::system_info::{SystemInfo, NetworkThroughput, mounted_devices};
-use crate::data::{Claims, OverviewResponse};
+use ppdrive_dashboard_shared::{OverviewResponse, MountedDeviceInfo};
+use crate::Claims;
 
 pub async fn overview_handler(
     State(state): State<AppState>,
@@ -48,7 +49,7 @@ pub async fn overview_handler(
 
     let mounted = mounted_devices()
         .into_iter()
-        .map(|d| crate::data::MountedDeviceInfo {
+        .map(|d| MountedDeviceInfo {
             mount_path: d.mount_path,
             device: d.device,
             fs_type: d.fs_type,
@@ -61,21 +62,21 @@ pub async fn overview_handler(
     let response = OverviewResponse {
         logged_user: claims.sub,
         storage_used: format_bytes(storage_used),
-        counter: crate::data::Counter {
-            users: crate::data::UserCounter {
+        counter: ppdrive_dashboard_shared::Counter {
+            users: ppdrive_dashboard_shared::UserCounter {
                 total: total_users as usize,
                 added_this_week: added_this_week as usize,
             },
-            clients: crate::data::ClientCounter {
+            clients: ppdrive_dashboard_shared::ClientCounter {
                 total: total_clients as usize,
                 active: total_clients as usize,
             },
-            objects: crate::data::ObjectCounter {
+            objects: ppdrive_dashboard_shared::ObjectCounter {
                 total: total_assets as usize,
                 buckets: total_buckets as usize,
             },
         },
-        host: crate::data::HostInfo {
+        host: ppdrive_dashboard_shared::HostInfo {
             os: host.os,
             kernel: host.kernel,
             architecture: host.architecture,
@@ -87,7 +88,7 @@ pub async fn overview_handler(
             used_storage: host.used_storage,
             total_storage: host.total_storage,
         },
-        throughput: crate::data::Throughput {
+        throughput: ppdrive_dashboard_shared::Throughput {
             ingres: throughput.ingres,
             egres: throughput.egres,
             req_per_second: 0,

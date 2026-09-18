@@ -6,13 +6,20 @@ use axum::routing::{get, post};
 use axum::{Json, Router};
 use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
 use ppdrive::state::AppState;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
 use tower_governor::GovernorLayer;
 
-mod data;
+pub use ppdrive_dashboard_shared as data;
 pub(crate) mod routes;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Claims {
+    pub(crate) sub: String,
+    pub(crate) exp: usize,
+    pub(crate) iat: usize,
+}
 
 #[derive(Serialize)]
 pub(crate) struct ErrorResponse {
@@ -47,7 +54,7 @@ async fn auth_middleware(
     let mut validation = Validation::new(Algorithm::HS256);
     validation.validate_exp = true;
 
-    let token_data = decode::<data::Claims>(
+    let token_data = decode::<Claims>(
         session_token,
         &DecodingKey::from_secret(secret.as_bytes()),
         &validation,

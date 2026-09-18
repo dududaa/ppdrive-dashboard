@@ -2,26 +2,19 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 pub struct Welcome {
-    pub(crate) version: String,
-    pub(crate) host: String,
+    pub version: String,
+    pub host: String,
 }
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
-    pub(crate) email: String,
-    pub(crate) password: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Claims {
-    pub(crate) sub: String,
-    pub(crate) exp: usize,
-    pub(crate) iat: usize,
+    pub email: String,
+    pub password: String,
 }
 
 #[derive(Serialize)]
 pub struct LoginResponse {
-    pub(crate) message: String,
+    pub message: String,
 }
 
 #[derive(Serialize)]
