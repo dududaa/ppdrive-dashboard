@@ -174,7 +174,7 @@ pub fn AuthPage() -> Element {
                 }
                 {match welcome.read().as_ref() {
                     Some(Some(w)) => rsx! {
-                        p { class: "text-center font-mono text-xs mt-4 text-dim", "v{w.version} \u{00b7} {w.host}" }
+                        p { class: "text-center font-mono text-xs mt-4 text-dim", "v{w.version} \u{00b7} ppdrive/server \u{00b7} {w.host}" }
                     },
                     _ => rsx! {
                         p { class: "text-center font-mono text-xs mt-4 text-dim", "ppdrive" }
