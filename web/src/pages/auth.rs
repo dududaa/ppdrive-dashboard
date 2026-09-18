@@ -1,7 +1,7 @@
 use crate::Route;
 use dioxus::prelude::*;
 use gloo_net::http::Request;
-use ppdrive_dashboard_shared::LoginRequest;
+use ppdrive_dashboard_shared::{LoginRequest, Welcome};
 
 const API_BASE: &str = "http://localhost:8081/dashboard";
 
@@ -12,6 +12,14 @@ pub fn AuthPage() -> Element {
     let mut loading = use_signal(|| false);
     let mut error = use_signal(|| Option::<String>::None);
     let navigator = use_navigator();
+
+    let welcome = use_resource(move || async move {
+        let resp = Request::get(&format!("{API_BASE}/welcome"))
+            .send()
+            .await
+            .ok()?;
+        resp.json::<Welcome>().await.ok()
+    });
 
     let handle_submit = move |event: Event<FormData>| {
         event.prevent_default();
@@ -164,7 +172,14 @@ pub fn AuthPage() -> Element {
                         }
                     }
                 }
-                p { class: "text-center font-mono text-xs mt-4 text-dim", "v2.4.1 \u{00b7} ppdrive/server \u{00b7} linux/amd64" }
+                {match welcome.read().as_ref() {
+                    Some(Some(w)) => rsx! {
+                        p { class: "text-center font-mono text-xs mt-4 text-dim", "v{w.version} \u{00b7} {w.host}" }
+                    },
+                    _ => rsx! {
+                        p { class: "text-center font-mono text-xs mt-4 text-dim", "ppdrive" }
+                    },
+                }}
             }
         }
     }
