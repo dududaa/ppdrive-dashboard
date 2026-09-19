@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use gloo_net::http::Request;
 use ppdrive_dashboard_shared::{LoginRequest, Welcome};
 
-const API_BASE: &str = "http://localhost:8081/dashboard";
+const API_BASE: &str = "/dashboard";
 
 #[component]
 pub fn AuthPage() -> Element {

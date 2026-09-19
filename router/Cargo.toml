@@ -27,4 +27,6 @@ chrono = "0.4"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "signal"] }
 anyhow = "1"
+rust-embed = "8"
+mime_guess = "2"
 

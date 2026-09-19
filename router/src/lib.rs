@@ -1,11 +1,14 @@
 use crate::routes::overview::overview_handler;
 use crate::routes::{login_handler, welcome_handler};
+use axum::body::Body;
 use axum::extract::State;
 use axum::http::{header, StatusCode};
 use axum::routing::{get, post};
 use axum::{Json, Router};
+use axum::response::Response;
 use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
 use ppdrive::state::AppState;
+use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
@@ -13,6 +16,10 @@ use tower_governor::GovernorLayer;
 
 pub use ppdrive_dashboard_shared as data;
 pub(crate) mod routes;
+
+#[derive(RustEmbed)]
+#[folder = "web/dist"]
+struct DashboardAssets;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Claims {
@@ -66,6 +73,35 @@ async fn auth_middleware(
     Ok(next.run(request).await)
 }
 
+async fn serve_ui(uri: axum::http::Uri) -> Result<Response<Body>, StatusCode> {
+    let path = uri.path().strip_prefix("/ui").unwrap_or("");
+    let path = if path.is_empty() {
+        "index.html"
+    } else {
+        path.trim_start_matches('/')
+    };
+
+    match DashboardAssets::get(path) {
+        Some(content) => {
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+            Ok(Response::builder()
+                .header(header::CONTENT_TYPE, mime.as_ref())
+                .body(Body::from(content.data.into_owned()))
+                .unwrap())
+        }
+        None => {
+            // SPA fallback: serve index.html for unmatched paths
+            match DashboardAssets::get("index.html") {
+                Some(content) => Ok(Response::builder()
+                    .header(header::CONTENT_TYPE, "text/html")
+                    .body(Body::from(content.data.into_owned()))
+                    .unwrap()),
+                None => Err(StatusCode::NOT_FOUND),
+            }
+        }
+    }
+}
+
 pub fn router(state: AppState) -> Router {
     let governor_conf = GovernorConfigBuilder::default()
         .per_second(5)
@@ -92,5 +128,7 @@ pub fn router(state: AppState) -> Router {
 
     Router::new()
         .nest("/dashboard", api)
+        .route("/ui/{*path}", get(serve_ui))
+        .route("/ui", get(serve_ui))
         .with_state(state)
 }
